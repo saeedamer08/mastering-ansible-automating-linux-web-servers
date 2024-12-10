@@ -1,0 +1,9 @@
+[webservers]
+goldweb1 ansible_host=127.0.0.1 ansible_port=2205
+goldweb2 ansible_host=127.0.0.1 ansible_port=2206 
+
+[loadbalancers]
+goldlb ansible_host=127.0.0.1 ansible_port=2204
+
+[databases]
+golddb ansible_host=127.0.0.1 ansible_port=2207 

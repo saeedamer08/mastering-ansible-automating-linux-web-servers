@@ -1,0 +1,18 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(2) do |config|
+  config.ssh.insert_key = false
+  config.vm.define "bronzeweb1" do |bronzeweb1|
+    bronzeweb1.vm.box = "ubuntu/trusty64"
+    bronzeweb1.vm.hostname = "bronzeweb1"
+    bronzeweb1.vm.network "private_network", ip: "10.0.5.11"
+    bronzeweb1.vm.network "forwarded_port", guest: 80, host: 8080
+    bronzeweb1.vm.network "forwarded_port", guest: 22, host: 2211, id: "ssh" 
+    bronzeweb1.vm.provider "virtualbox" do |vb|
+        vb.memory = "256"
+  end
+end
+end

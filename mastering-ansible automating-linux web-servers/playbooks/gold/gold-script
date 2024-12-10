@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Een moment geduld A.U.B. uw gold webservers, database en loadbalancer worden aangemaakt"
+
+# Vagrant maakt gold webservers, database en loadbalancer aan
+vagrant up
+
+# Ansible configureert de silver webservers en loadbalancer
+ansible-playbook gold-web-lb-config.yml
+ansible-playbook gold-db-config.yml
+
+
+echo "Uw gold servers zijn aangemaakt en gereed voor gebruik"
+
+

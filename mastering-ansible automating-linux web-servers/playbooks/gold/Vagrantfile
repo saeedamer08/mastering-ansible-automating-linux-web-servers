@@ -1,0 +1,49 @@
+Vagrant.configure(2) do |config|  
+# Use the same key for each machine
+config.ssh.insert_key = false
+  
+  config.vm.define "goldlb" do |goldlb|
+    goldlb.vm.box = "ubuntu/trusty64"
+    goldlb.vm.hostname = "goldlb"
+    goldlb.vm.network "forwarded_port", guest: 80, host: 8084
+    goldlb.vm.network "forwarded_port", guest: 22, host: 2204, id: "ssh"
+    goldlb.vm.network "private_network", ip: "10.0.5.30",
+	virtualbox__intnet: true
+    goldlb.vm.provider "virtualbox" do |vb|
+      vb.memory = "256"
+      end  
+  end
+  config.vm.define "goldweb1" do |goldweb1|
+    goldweb1.vm.box = "ubuntu/trusty64"
+    goldweb1.vm.hostname = "goldweb1"
+    goldweb1.vm.network "forwarded_port", guest: 80, host: 8085
+    goldweb1.vm.network "forwarded_port", guest: 22, host: 2205, id: "ssh" 
+    goldweb1.vm.network "private_network", ip: "10.0.5.35", 
+	virtualbox__intnet: true
+    goldweb1.vm.provider "virtualbox" do |vb|
+      vb.memory = "256"
+    end
+end
+  config.vm.define "goldweb2" do |goldweb2|
+    goldweb2.vm.box = "ubuntu/trusty64"
+    goldweb2.vm.hostname = "goldweb2"
+    goldweb2.vm.network "forwarded_port", guest: 80, host: 8086
+    goldweb2.vm.network "forwarded_port", guest: 22, host: 2206, id: "ssh"
+    goldweb2.vm.network "private_network", ip: "10.0.5.36", 
+	virtualbox__intnet: true
+    goldweb2.vm.provider "virtualbox" do |vb|
+       vb.memory = "256"
+    end
+end
+  config.vm.define "golddb" do |golddb|
+    golddb.vm.box = "ubuntu/trusty64"
+    golddb.vm.hostname = "golddb"
+    golddb.vm.network "forwarded_port", guest: 80, host: 8087
+    golddb.vm.network "forwarded_port", guest: 22, host: 2207, id: "ssh"
+    golddb.vm.network "private_network", ip: "10.0.5.40", 
+	virtualbox__intnet: true
+    golddb.vm.provider "virtualbox" do |vb|
+        vb.memory = "256"
+    end
+  end
+end

@@ -1,0 +1,44 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  # Use the same key for each machine
+  config.ssh.insert_key = false
+
+ # create load balancer
+  config.vm.define "silverlb" do |silverlb|
+      silverlb.vm.box = "ubuntu/trusty64"
+      silverlb.vm.hostname = "silverlb"
+      silverlb.vm.network :private_network, ip: "10.0.5.20",
+	virtualbox__intnet: true
+      silverlb.vm.network "forwarded_port", guest: 80, host: 8081
+      silverlb.vm.network "forwarded_port", guest: 22, host: 2220, id: "ssh" 
+      silverlb.vm.provider "virtuasilverlbox" do |vb|
+        vb.memory = "256"
+    end
+  end
+  # create some web servers
+  # https://docs.vagrantup.com/v2/vagrantfile/tips.html
+  config.vm.define "silverweb1" do |silverweb1|
+      silverweb1.vm.box = "ubuntu/trusty64"
+      silverweb1.vm.hostname = "silver-web1"
+      silverweb1.vm.network :private_network, ip: "10.0.5.21",
+	virtualbox__intnet: true
+      silverweb1.vm.network "forwarded_port", guest: 80, host: 8082
+      silverweb1.vm.network "forwarded_port", guest: 22, host: 2221, id: "ssh" 
+      silverweb1.vm.provider "virtuasilverlbox" do |vb|
+       vb.memory = "256"
+     end
+   end
+  config.vm.define "silverweb2" do |silverweb2|
+      silverweb2.vm.box = "ubuntu/trusty64"
+      silverweb2.vm.hostname = "silver-web2"
+      silverweb2.vm.network "private_network", ip: "10.0.5.22",
+	virtualbox__intnet: true
+      silverweb2.vm.network "forwarded_port", guest: 80, host: 8083
+      silverweb2.vm.network "forwarded_port", guest: 22, host: 2223, id: "ssh"
+      silverweb2.vm.provider "virtuasilverlbox" do |vb|
+       vb.memory = "256"
+     end
+   end
+end

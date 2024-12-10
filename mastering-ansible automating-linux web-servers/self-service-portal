@@ -1,0 +1,82 @@
+#!/bin/bash
+clear
+echo "Welcome by the self-service portal"
+
+#request customer name   
+echo "Please enter your name: "
+read customername
+echo " "
+echo "Welcome $customername"
+echo " "
+
+echo "Would you like to delete a server node? Enter yes or no."
+read node
+if [ $node == "yes" ]
+then 
+    echo "Which servernode would you like to delete? Enter bronze, silver or gold"
+    read server
+      cd /home/student/customers/$customername/$server
+      vagrant destroy --force
+      cd ../../
+      rm -rf /home/student/customers/$customername
+	  echo "The selected servers are deleted, We hope to serve you again soon."
+else
+#create customer folder
+if [ ! -d "/home/student/customers/$customername" ]
+then
+        mkdir /home/student/customers/$customername
+        echo "$customername"
+else
+        echo "This name is already used, Please choose another name"
+fi
+
+#request customer choice
+
+PS3='Which server node would you like to deploy?'
+options=("bronze" "silver" "gold" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "bronze")
+            echo "You choosed the bronze node"
+        answer="bronze"
+        break
+        ;;
+        "silver")
+            echo "You choosed the silver node"
+        answer="silver"
+        break
+        ;;
+        "gold")
+            echo "You choosed the gold node"
+        answer="gold"
+        break
+        ;;
+        "Quit")
+            break
+            ;;
+        *) echo invalid option;;
+    esac
+done
+
+#Copy server node template configuration files to customer's new folder 
+
+cp -r /home/student/playbooks/$answer /home/student/customers/$customername
+cd /home/student/customers/$customername/$answer
+
+#Create customer server node
+vagrant up
+
+#Run ansible configuration playbook
+case $answer in
+    bronze) ansible-playbook /home/student/customers/$customername/$answer/bronze-config.yml
+    ;;
+    silver) ansible-playbook /home/student/customers/$customername/$answer/silver-config.yml
+    ;;
+    gold) ansible-playbook /home/student/customers/$customername/$answer/gold-web-lb-config.yml
+          ansible-playbook /home/student/customers/$customername/$answer/gold-db-config.yml
+    ;;
+esac
+echo "Uw $answer servers zijn uitgerold en gereed voor gebruik"
+fi
+

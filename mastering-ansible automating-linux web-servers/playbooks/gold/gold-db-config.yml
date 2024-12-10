@@ -1,0 +1,71 @@
+---
+
+- name: Install PostgreSQL and create the database
+  hosts: databases
+  sudo: True
+  vars: 
+    db_name: windesheim
+    db_user: dbuser 
+    db_password: dbpasswd
+
+ 
+  tasks:
+     
+     - name: ensure apt cache is up to date
+       apt: update_cache=yes
+
+     - name: install python
+       apt: name=python3 update_cache=yes
+
+     - name: Install PostgreSQL
+       apt: name={{item}} state=latest update_cache=yes
+       with_items:
+        - postgresql
+        - python-psycopg2
+        - postgresql-contrib
+        - libpq-dev
+
+     - name: write our configuration /etc/postgresql/9.3/main/pg_hba.conf
+       template: src=templates/pg_hba.conf.j2 dest=/etc/postgresql/9.3/main/pg_hba.conf
+       
+     - name: Let PostgreSQL listen to all interfaces
+       replace: dest=/etc/postgresql/9.3/main/postgresql.conf regexp='#listen_addresses' replace='listen_addresses'
+       
+     - name: Let PostgreSQL listen to all interfaces 2
+       replace: dest=/etc/postgresql/9.3/main/postgresql.conf regexp='localhost' replace='*'
+       notify: restart postgresql
+
+     - name: Ensure database is created
+       sudo: yes
+       sudo_user: postgres
+       postgresql_db: name={{db_name}}
+                      encoding='UTF-8'
+                      lc_collate='en_US.UTF-8'
+                      lc_ctype='en_US.UTF-8'
+                      template='template0'
+                      state=present
+
+     - name: Ensure the PostgreSQL service is running
+       service: name=postgresql state=started enabled=yes
+
+     - name: Ensure user has access to the database
+       become_user: postgres
+       become: yes
+       postgresql_user: db={{db_name}}
+                        name={{db_user}}
+                        password={{db_password}}
+                        priv=ALL
+                        state=present
+                        encrypted=no
+ 
+     - name: Ensure user does not have unnecessary privileges
+       become_user: postgres
+       become: yes
+       postgresql_user: name={{db_user}}
+                        role_attr_flags=NOSUPERUSER,NOCREATEDB
+                        state=present
+
+     - name: restart service PostgreSQL 
+       service: name=postgresql state=restarted
+
+...
